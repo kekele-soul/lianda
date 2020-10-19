@@ -1,30 +1,47 @@
 package models
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"kekele/db_mysql"
+	"fmt"
+	"lianda/db_mysql"
+	"lianda/util"
 )
 
 type User struct {
-	Id       string
-	Phone    string
-	Password string
+	Phone    string `form:"phone"`
+	Password string `form:"password"`
 }
-//保存用户信息方法
-func (u User) SaveUser()(int64,error) {
-	hashMd5 :=md5.New()
-	hashMd5.Write([]byte(u.Password))
-	bytes := hashMd5.Sum(nil)
-	u.Password = hex.EncodeToString(bytes)
 
-	row, err :=db_mysql.Db.Exec("insert into user(phone,password)" +"value (?,?)","u.phone,password")
+//type User struct {
+//	Id       string
+//	Phone    string
+//	Password string
+//}
+//保存用户信息方法
+func (u *User) SaveUser()(int64,error) {
+	//密码哈希、脱敏
+	u.Password = util.Md5hashSring(u.Password)
+	//fmt.Printf("电话号码:%s",u.Phone)
+	//fmt.Println("密码:",u.Password)
+	row, err :=db_mysql.DB.Exec("insert into user (phone,password) values (?,?)",u.Phone,u.Password)
 	if err != nil {
+		fmt.Println(err)
 		return -1,err
 	}
 	id, err :=row.RowsAffected()
 	if err != nil{
-		return -1,err
+		return -2,err
 	}
 	return id,nil
+}
+//查询用户信息
+func (u User) QuerUser()(*User,error) {
+	//密码哈希、脱敏
+	u.Password = util.Md5hashSring(u.Password)
+	row := db_mysql.DB.QueryRow("select phone from user where phone = ? and password = ?",u.Phone,u.Password)
+	var phone string
+ err :=	row.Scan(&phone)
+	if err != nil  {
+		return nil,err
+	}
+	return &u,nil
 }
