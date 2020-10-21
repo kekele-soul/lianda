@@ -67,7 +67,7 @@ func (h *HomeContorller) Post(){
 	str, err := record.SeveRecord()
 	fmt.Println(str)
 	if err != nil{
-		fmt.Println("111111111111111111",err)
+		//fmt.Println("111111111111111111",err)
 		h.Ctx.WriteString("抱歉，认证错误，请重试！")
 		return
 	}

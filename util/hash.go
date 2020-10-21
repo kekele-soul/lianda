@@ -29,11 +29,11 @@ func  Md5hashReader(reader io.Reader) (string,error) {
 /**
  *对数据进行哈希
  */
-func  SHA256hashBlock(Data []byte)([]byte)  {
+func  SHA256hashBlock(data []byte)([]byte)  {
 	//对block字段进行拼接
 	//对拼接后的数据进行sha256
 	sha256hash := sha256.New()
-	sha256hash.Write([]byte(""))
+	sha256hash.Write(data)
 	return sha256hash.Sum(nil)
 
 }
