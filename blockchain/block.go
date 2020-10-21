@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"bytes"
+	"encoding/gob"
 	"lianda/util"
 	"time"
 )
@@ -21,7 +22,7 @@ type Block struct {
 /**
  * 新建一个区块实例，并返回该区块
  */
-func NewBlock(height int64,data []byte, prevhash []byte)(Block){
+func NewBlock(height int64, data []byte, prevhash []byte)(Block){
 	//构建一个block实例，用于生成区块
 	block :=Block{
 		Height:height,
@@ -32,11 +33,11 @@ func NewBlock(height int64,data []byte, prevhash []byte)(Block){
 	}
 	//为新生成的block，寻找合适的nonce值
 	pow :=NewPow(block)
-	nonce := pow.Run()
+	block256hash,nonce := pow.Run()
 
 	//将block的nonce设置为找到的合适的nonce数
 	block.Nonce = nonce
-
+	block.Hash= block256hash
 	//调用uti.SHA256hash进行计算
 	heightBytes,_ := util.IntToBytes(block.Height)//转换成切片类型
 	timeBytes, _ := util.IntToBytes(block.TimeStamp)//转换成切片类型
@@ -53,4 +54,26 @@ func NewBlock(height int64,data []byte, prevhash []byte)(Block){
 	}, []byte{})
 	block.Hash = util.SHA256hashBlock(blockBytes)
 	return block
+}
+/**
+ *区块的序列化
+ */
+func (bk Block)serialize()([]byte,error){
+	buff := new(bytes.Buffer)
+	err :=gob.NewEncoder(buff).Encode(bk)
+	if err != nil {
+		return nil, err
+	}
+	return buff.Bytes(),nil
+}
+/**
+ *区块的反序列化
+ */
+func Deserialize(data []byte)(*Block,error){
+	var block Block
+	err :=gob.NewDecoder(bytes.NewReader(data)).Decode(&block)
+	if err != nil {
+		return nil, err
+	}
+	return &block,nil
 }

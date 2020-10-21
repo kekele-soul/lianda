@@ -3,11 +3,12 @@ package blockchain
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 	"lianda/util"
 	"math/big"
 )
 
-const DIDDDICULTY = 16
+const DIDDDICULTY = 20
 /**
  *工作量证明结构体
  */
@@ -33,10 +34,11 @@ func NewPow(block Block) ProoFodWork{
  *pow算法：寻找符合条件的nonce值
  */
 
-func (p ProoFodWork) Run() (int64) {
+func (p ProoFodWork) Run() ( []byte, int64 ) {
 	var nonce int64
 	//var bigBlock *big.Int//声明
 	bigBlock := new(big.Int)//实例化
+	var block256hash []byte
 	for {
 		block := p.Block
 
@@ -55,14 +57,16 @@ func (p ProoFodWork) Run() (int64) {
 		},[]byte{})
 		sha256hash := sha256.New()
 		sha256hash.Write(blockBytes)
-		block256hash :=sha256hash.Sum(nil)
+		block256hash =sha256hash.Sum(nil)
+		fmt.Println("挖框中，当前nonce值：",nonce)
 		//sha256hash(区块+nonce)对应的大整数
 		bigBlock:=bigBlock.SetBytes(block256hash)
-
+		//fmt.Printf("目标值:%x\n",p.Target)
+		//fmt.Printf("hash值：%x\n",bigBlock)
 		if p.Target.Cmp(bigBlock) == 1{//如果满足条件时，退出循环
 			break
 		}
 		nonce++ //不满足条件就给nonce加一继续循环
 	}
-	return nonce
+	return block256hash, nonce
 }
