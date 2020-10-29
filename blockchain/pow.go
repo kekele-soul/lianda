@@ -3,7 +3,6 @@ package blockchain
 import (
 	"bytes"
 	"crypto/sha256"
-	"fmt"
 	"lianda/util"
 	"math/big"
 )
@@ -58,7 +57,7 @@ func (p ProoFodWork) Run() ( []byte, int64 ) {
 		sha256hash := sha256.New()
 		sha256hash.Write(blockBytes)
 		block256hash =sha256hash.Sum(nil)
-		fmt.Println("挖框中，当前nonce值：",nonce)
+		//fmt.Println("挖框中，当前nonce值：",nonce)
 		//sha256hash(区块+nonce)对应的大整数
 		bigBlock:=bigBlock.SetBytes(block256hash)
 		//fmt.Printf("目标值:%x\n",p.Target)
