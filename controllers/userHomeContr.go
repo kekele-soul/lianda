@@ -4,6 +4,7 @@ import (
 
 	"bufio"
 	"fmt"
+	"lianda/blockchain"
 	"lianda/util"
 	"lianda/models"
 	"github.com/astaxie/beego"
@@ -70,6 +71,11 @@ func (h *HomeContorller) Post(){
 		//fmt.Println("111111111111111111",err)
 		h.Ctx.WriteString("抱歉，认证错误，请重试！")
 		return
+	}
+	//新增逻辑：将要认证的文件hash值及个人实名信息，保存到区块链上
+	_,err =blockchain.CHAIN.SaveData([]byte(hash))
+	if err != nil{
+		h.Ctx.WriteString("抱歉，数据上链失败，请重试！")
 	}
 	//从数据库当中读取phone用户对应的所有认证记录
 	records, err := models.QueryRecordByPhone(phone)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/astaxie/beego"
 	"lianda/blockchain"
 	"lianda/db_mysql"
@@ -9,19 +8,11 @@ import (
 )
 
 func main() {
-	// 实例化一个区块链实例
-	bc := blockchain.NewBlockChain()
-	fmt.Printf("最新区块的hash值:%x\n",bc.LastHash)
+	//qrcode.WriteFile("我爱我老婆,老婆万岁。",qrcode.Medium,256,"./love.png")
 
-	blocks :=bc.QueryAllBlocks()
-	if len(blocks) == 0{
-		fmt.Println("暂未查询到区块链数据")
-	}
-	for _, block := range blocks{
-		fmt.Printf("高度：%d\n 哈希：%x\n 上一个哈希：%x\n",block.Height,block.Hash, block.PrevHash)
-	}
-	fmt.Println()
-	return
+
+
+	blockchain.NewBlockChain()
 
 	//链接数据库
 	db_mysql.ConnectDB()

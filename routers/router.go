@@ -18,6 +18,6 @@ func init() {
     //新增存证
     beego.Router("/upload_file.html",&controllers.HomeContorller{})
 	//查看数据认证的证书
-	//beego.Router("./cert_datail.html",&controllers.)
+	beego.Router("./cert_datail.html",&controllers.CertDetaliControoller{})
 
 }

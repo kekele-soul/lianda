@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"errors"
-	"fmt"
 	"github.com/boltdb/bolt"
 	"math/big"
 )
@@ -14,6 +13,7 @@ var LAST_KEY = "lasthash"
 //存储区块数据的文件
 var CHAINDB = "chain.db"
 
+var CHAIN BlockChain
 /**
  * 区块链结构体实例定义:用于表示代表一条区块链
  * 该区块链包含以下功能:
@@ -110,7 +110,7 @@ func NewBlockChain() BlockChain {
 			//1、创建创世区块
 			genesis := CreateGenesisBlock() //创世区块
 			//2、创建一个存储区块数据的文件
-			fmt.Printf("genesis的hash值是：%x\n",genesis.Hash)
+			//fmt.Printf("genesis的hash值是：%x\n",genesis.Hash)
 			bl = BlockChain{
 				LastHash:genesis.Hash,
 				BoltDb:db,
@@ -133,7 +133,46 @@ func NewBlockChain() BlockChain {
 		}
 		return nil
 	})
+	//为全局变量赋值
+	CHAIN = bl
 	return bl
+}
+ /**
+  * 该方法用于根据用户传入的 认证id查询区块信息，并返回
+  */
+
+func (bc BlockChain)QueryBlockByCerId(cert_id []byte) (*Block,error) {
+	var block *Block
+	db := bc.BoltDb
+	var err error
+	db.View(func(tx *bolt.Tx) error {
+		bucket :=tx.Bucket([]byte(BUCKET_NAME))
+		if bucket == nil {
+			err = errors.New("查询区块遇到错误")
+			return err
+		}
+		eachHash :=  bucket.Get([]byte(LAST_KEY))
+		eachBig := new(big.Int)
+		zerBig := big.NewInt(0)
+		for{
+		eachBlockBytes := bucket.Get(eachHash)
+			eachBlock,_ := Deserialize(eachBlockBytes)
+			//找不到的情况，直接跳出
+			eachBig.SetBytes(eachBlock.PrevHash)
+			if eachBig.Cmp(zerBig) == 0 {
+				break
+			}
+			eachHash = eachBlock.PrevHash
+			//找到的情况
+			if string(eachBlock.Data) == string(cert_id){
+			block = eachBlock
+				break
+			}
+			eachHash = eachBlock.PrevHash
+		}
+		return nil
+	})
+	return block, err
 }
 
 /**
